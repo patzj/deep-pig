@@ -4,10 +4,11 @@ var PIG_INITIAL_POS_X = GAME_HEIGHT / 8;
 var PIG_INITIAL_POS_Y = GAME_WIDTH / 2 + 14;
 var game = new Phaser.Game(
     GAME_WIDTH, GAME_HEIGHT, Phaser.CANVAS, '', null);
-var pig, sharks, jellyfishes, oxygens, torpedos;
-var sharkVelocity = -960;
-var oxygenVelocity = -240;
-var torpedoVelocity = -1920;
+var pig, sharks, jellyfishes, oxygens, torpedos, background;
+var sharkVelocity = -720;
+var jellyfishVelocity = 180;
+var oxygenVelocity = -360;
+var torpedoVelocity = -960;
 
 var mainState = function(game) { };
 mainState.prototype = {
@@ -18,6 +19,7 @@ mainState.prototype = {
         game.load.image('bubbles', 'assets/media/bubbles.png');
         game.load.image('oxygen', 'assets/media/oxygen.png');
         game.load.image('torpedo', 'assets/media/torpedo.png');
+        game.load.image('sea', 'assets/media/sea.png');
     },
 
     create: function() {
@@ -33,7 +35,8 @@ mainState.prototype = {
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         // background
-        game.stage.backgroundColor = '#264d73';
+        // game.stage.backgroundColor = '#264d73';
+        background = game.add.tileSprite(0, 0, 1280, 480, 'sea');
 
         // pig
         pig = game.add.sprite(PIG_INITIAL_POS_X, PIG_INITIAL_POS_Y, 'pig');
@@ -54,18 +57,19 @@ mainState.prototype = {
         torpedos = game.add.group();
 
         // game loops
-        game.time.events.loop(800, spawnShark, this);
-        game.time.events.loop(900, spawnShark, this);
+        game.time.events.loop(1200, spawnShark, this);
+        game.time.events.loop(1500, spawnShark, this);
         // game.time.events.loop(2000, addSharkVelocity, this);
-        game.time.events.loop(1500, spawnJellyfish, this);
+        game.time.events.loop(2000, spawnJellyfish, this);
         game.time.events.loop(2000, spawnBubbles, this);
-        game.time.events.loop(3000, spawnOxygen, this);
-        game.time.events.loop(2000, spawnTorpedo, this);
+        game.time.events.loop(4000, spawnOxygen, this);
+        game.time.events.loop(3000, spawnTorpedo, this);
     },
 
     update: function() {
         // play pig movement animation
         pig.animations.play('move');
+        background.tilePosition.x -= 2;
 
         if(game.input.activePointer.isDown) {
             pigMove();
@@ -120,7 +124,7 @@ function spawnJellyfish() {
     jellyfishes.add(jellyfish);
     game.physics.arcade.enable(jellyfish);
     jellyfish.animations.add('move', [0, 1], 2, true);
-    game.physics.arcade.moveToXY(jellyfish, 0, 0, 120);
+    game.physics.arcade.moveToXY(jellyfish, 0, 0, jellyfishVelocity);
     jellyfish.checkWorldBounds = true;
     jellyfish.outOfBoundsKill = true;
     jellyfish.animations.play('move');
@@ -131,7 +135,7 @@ function spawnBubbles() {
     var xPos = pig.x + pig.width;
     var bubbles = game.add.sprite(xPos, yPos, 'bubbles');
     game.physics.arcade.enable(bubbles);
-    game.physics.arcade.moveToXY(bubbles, 0, 0, 240);
+    game.physics.arcade.moveToXY(bubbles, 0, 0, 360);
     bubbles.alpha = 0.3;
     bubbles.scale.setTo(0.75, 0.75);
     bubbles.checkWorldBounds = true;
